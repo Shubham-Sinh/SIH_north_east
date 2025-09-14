@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     window.open("html_2.html", "_blank");
                 });
             }
+            
 
             // --- Chatbot Logic ---
             const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
