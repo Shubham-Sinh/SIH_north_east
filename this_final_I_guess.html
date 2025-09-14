@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Jal Suraksha | Smart Health Monitoring System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F8F9FA;
+            --text-color: #343A40;
+            --primary-accent: #007BFF;
+            --primary-accent-dark: #0056b3;
+            --secondary-accent: #3A506B;
+            --card-border: #EAEAEA;
+            --card-bg: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* --- Hero Section Styles --- */
+        #hero-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #hero-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            animation: hero-zoom-in 1.5s ease-out forwards;
+        }
+
+        #hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+            animation: fade-in-up 1s ease-out 0.5s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes hero-zoom-in {
+            from {
+                transform: scale(1.1);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fade-in-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Header Styles --- */
+        #main-header {
+            background-color: transparent;
+            transition: background-color 0.4s ease-in-out, backdrop-filter 0.4s ease-in-out;
+        }
+
+        #main-header.scrolled {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        #main-header.scrolled a,
+        #main-header.scrolled div {
+            color: #343A40;
+        }
+
+        #main-header a,
+        #main-header div {
+            color: white;
+        }
+
+        #main-header .text-\[var\(--primary-accent)\] {
+            color: var(--primary-accent);
+        }
+
+        #main-header.scrolled .text-\[var\(--primary-accent)\] {
+            color: var(--primary-accent);
+        }
+
+        /* --- General Styles --- */
+        .active-tab {
+            border-bottom-color: var(--primary-accent);
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+        .flow-node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flow-node:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-accent) !important;
+        }
+        .flow-node.active-diagram-node {
+            background-color: var(--primary-accent) !important;
+            color: #FFFFFF !important;
+            border-color: var(--primary-accent) !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 14px 0 rgba(0, 123, 255, 0.4);
+        }
+        .chart-container {
+            position: relative; width: 100%; max-width: 600px; margin: auto; height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .content-fade {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; opacity: 0; transform: translateY(10px);
+        }
+        .content-fade.active { opacity: 1; transform: translateY(0); }
+        .fade-in-section {
+            opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.645, 0.045, 0.355, 1), transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        .fade-in-section.is-visible { opacity: 1; transform: translateY(0); }
+        .asha-tooltip { text-decoration: underline; text-decoration-style: dotted; cursor: help; position: relative; }
+        .diagram-container { position: relative; }
+        .arrow { position: absolute; background-color: #d1d5db; z-index: 0; opacity: 0; animation: draw-arrow 0.8s forwards; }
+        @keyframes draw-arrow { to { opacity: 1; } }
+        .arrow.down { width: 3px; height: 50px; }
+        .arrow.down::after { content: ''; position: absolute; left: -7px; bottom: -2px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 12px solid #d1d5db; }
+        #arrow1 { left: 25%; top: 27%; animation-delay: 0.5s; }
+        #arrow2 { left: 75%; top: 27%; transform: translateX(-100%); animation-delay: 0.5s; }
+        #arrow3 { left: 50%; top: 62%; height: 40px; transform: translateX(-50%); animation-delay: 1s; }
+        #arrow-connector { position: absolute; top: 75%; left: 25%; width: 50%; height: 3px; background-color: #d1d5db; animation: draw-arrow 1s forwards; animation-delay: 1.5s; }
+        #arrow4 { top: 75%; left: 25%; animation-delay: 2s; }
+        #arrow5 { top: 75%; left: 75%; transform: translateX(-100%); animation-delay: 2s; }
+
+        /* --- Data Collection Note Styles (User Added) --- */
+        .data-collection-note {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background-color: #08b6dde0;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-family: 'Inter', sans-serif;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .data-collection-note:hover {
+            transform: scale(1.05);
+        }
+
+        /* --- Chatbot Styles --- */
+        #chatbot-fab { position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; }
+        #chat-window { position: fixed; bottom: 6rem; right: 2rem; width: 350px; height: 450px; z-index: 1000; transition: all 0.3s ease-in-out; transform: scale(0.95); opacity: 0; pointer-events: none; }
+        #chat-window.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .chat-message { animation: pop-in 0.3s ease; }
+        @keyframes pop-in { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+
+<body class="antialiased">
+    <header id="main-header" class="fixed top-0 left-0 w-full z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center transition-colors duration-300">
+            <div class="text-2xl font-extrabold tracking-tight">Project <span class="text-[var(--primary-accent)]">Jal Suraksha</span></div>
+            <div class="hidden md:flex space-x-8 font-medium">
+                <a href="#challenge" class="hover:text-[var(--primary-accent)] transition-colors">The Challenge</a>
+                <a href="#solution" class="hover:text-[var(--primary-accent)] transition-colors">Our Solution</a>
+                <a href="#features" class="hover:text-[var(--primary-accent)] transition-colors">Features</a>
+                <a href="#focus-area" class="hover:text-[var(--primary-accent)] transition-colors">Focus Area</a>
+                <a href="#roadmap" class="hover:text-[var(--primary-accent)] transition-colors">Roadmap</a>
+                <a href="#impact" class="hover:text-[var(--primary-accent)] transition-colors">Impact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero-section">
+            <img src="Screenshot 2025-09-13 021531.png" alt="A serene river in a lush green valley in Northeast India" id="hero-bg-image">
+            <div id="hero-content" class="px-4">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">A Predictive Health Revolution for Northeast India</h1>
+                <p class="text-lg md:text-xl max-w-3xl mx-auto">"Jal Suraksha": An AI-Powered, Community-Driven Early Warning System to proactively combat water-borne diseases.</p>
+                <a href="#challenge" class="mt-8 inline-block px-8 py-3 bg-[var(--primary-accent)] text-white font-bold rounded-full shadow-lg hover:bg-[var(--primary-accent-dark)] hover:scale-105 transition-transform duration-300">Explore the Solution</a>
+            </div>
+        </section>
+
+        <div class="container mx-auto px-6 py-12">
+            <section id="challenge" class="mb-24 fade-in-section pt-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">The Public Health Challenge</h2>
+                    <p class="text-md text-gray-500 mt-2 max-w-3xl mx-auto">In rural Northeast India, the monsoon brings not just rain, but a heightened risk of water-borne diseases. Remoteness and a lack of real-time data create a reactive healthcare cycle where response is often too late.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <div class="bg-[var(--card-bg)] p-6 rounded-2xl shadow-lg border border-[var(--card-border)] flex flex-col items-center text-center hover:shadow-xl transition-shadow duration-300">
+                        <span class="text-5xl mb-3">💧</span>
+                        <h3 class="font-semibold text-xl text-[var(--secondary-accent)] mb-2">Contaminated Water</h3>
+                        <p class="text-gray-600">Outbreaks are linked to contaminated sources and poor sanitation, leading to frequent illness.</p>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-2xl shadow-lg border border-[var(--card-border)] flex flex-col items-center text-center hover:shadow-xl transition-shadow duration-300">
+                        <span class="text-5xl mb-3">🗺️</span>
+                        <h3 class="font-semibold text-xl text-[var(--secondary-accent)] mb-2">Remote Locations</h3>
+                        <p class="text-gray-600">Challenging terrain makes it difficult to get health workers and supplies to remote villages in time.</p>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-2xl shadow-lg border border-[var(--card-border)] flex flex-col items-center text-center hover:shadow-xl transition-shadow duration-300">
+                        <span class="text-5xl mb-3">⏱️</span>
+                        <h3 class="font-semibold text-xl text-[var(--secondary-accent)] mb-2">Delayed Response</h3>
+                        <p class="text-gray-600">Without real-time data, emerging health threats aren't monitored, leading to widespread outbreaks.</p>
+                    </div>
+                </div>
+                <div class="bg-[var(--card-bg)] p-8 rounded-2xl shadow-xl border border-[var(--card-border)] fade-in-section">
+                    <h3 class="text-xl font-semibold text-center text-gray-800 mb-4">Data Story: The Seasonal Spike</h3>
+                    <p class="text-center text-gray-500 mb-6">Observe the dramatic increase in reported cases during the monsoon season. This data highlights the critical window for intervention.</p>
+                    <div class="flex justify-center mb-6 space-x-3">
+                        <button id="monsoonBtn" class="bg-[var(--primary-accent)] text-white px-6 py-2 rounded-full shadow-md hover:scale-105 transition-transform">Monsoon Season</button>
+                        <button id="dryBtn" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-full shadow-md hover:scale-105 transition-transform">Dry Season</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="seasonalSpikeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="solution" class="mb-24 fade-in-section pt-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Our Solution: A Paradigm Shift</h2>
+                    <p class="text-md text-gray-500 mt-2 max-w-2xl mx-auto">We flip the model from reactive to predictive. Our integrated system connects community intelligence, AI prediction, and a rapid alert framework. Click a component to learn more.</p>
+                </div>
+                <div class="lg:flex lg:space-x-8 items-center">
+                    <div class="lg:w-2/3 bg-[var(--card-bg)] p-8 rounded-2xl shadow-xl border border-[var(--card-border)] relative diagram-container">
+                        <div class="grid grid-cols-2 gap-y-16 gap-x-8 items-center justify-center h-full relative z-10">
+                            <div id="node-data-collection" class="flow-node text-center cursor-pointer bg-white border-2 border-gray-300 p-6 rounded-xl">
+                                <span class="text-4xl mb-2 block">📱</span>
+                                <h4 class="font-semibold text-gray-700">Community Intelligence</h4>
+                            </div>
+                            <div id="node-water-monitoring" class="flow-node text-center cursor-pointer bg-white border-2 border-gray-300 p-6 rounded-xl">
+                                <span class="text-4xl mb-2 block">💧</span>
+                                <h4 class="font-semibold text-gray-700">Environmental Data</h4>
+                            </div>
+                            <div id="node-ai-engine" class="col-span-2 flow-node text-center cursor-pointer bg-white border-2 border-gray-300 p-6 rounded-xl mx-auto w-2/3">
+                                <span class="text-4xl mb-2 block">🧠</span>
+                                <h4 class="font-semibold text-gray-700">AI Prediction Core</h4>
+                            </div>
+                            <div id="node-alerts" class="flow-node text-center cursor-pointer bg-white border-2 border-gray-300 p-6 rounded-xl">
+                                <span class="text-4xl mb-2 block">🚨</span>
+                                <h4 class="font-semibold text-gray-700">Rapid Response Alerts</h4>
+                            </div>
+                            <div id="node-dashboard" class="flow-node text-center cursor-pointer bg-white border-2 border-gray-300 p-6 rounded-xl">
+                                <span class="text-4xl mb-2 block">📊</span>
+                                <h4 class="font-semibold text-gray-700">Actionable Dashboards</h4>
+                            </div>
+                        </div>
+                        <div id="arrow1" class="arrow down"></div>
+                        <div id="arrow2" class="arrow down"></div>
+                        <div id="arrow3" class="arrow down"></div>
+                        <div id="arrow-connector" class="arrow"></div>
+                        <div id="arrow4" class="arrow down"></div>
+                        <div id="arrow5" class="arrow down"></div>
+                    </div>
+                    <div id="diagram-details" class="lg:w-1/3 mt-8 lg:mt-0 bg-[var(--secondary-accent)] text-white p-8 rounded-2xl shadow-lg flex flex-col justify-center content-fade active min-h-[300px]">
+                        <h3 id="details-title" class="font-bold text-xl mb-3 text-cyan-300">System Component Details</h3>
+                        <p id="details-text" class="text-gray-200">Click a component to see its description. Our system creates a seamless flow from data collection to decisive action.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="mb-24 fade-in-section pt-16">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Core Platform Features</h2>
+                    <p class="text-md text-gray-500 mt-2 max-w-2xl mx-auto">A suite of modules designed to create a comprehensive, adaptive, and community-centric health surveillance network.</p>
+                </div>
+                <div class="bg-[var(--card-bg)] rounded-2xl shadow-xl p-8 border border-[var(--card-border)]">
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                            <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm active-tab" data-tab="1">📱 Mobile App</button>
+                            <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="2">🧠 AI Prediction</button>
+                            <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="3">🔬 Sensors & Kits</button>
+                            <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="4">📚 Education</button>
+                        </nav>
+                    </div>
+                    <div id="tab-content-container" class="relative min-h-[120px]">
+                        <div id="tab-content" class="content-fade active"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="focus-area" class="mb-24 fade-in-section pt-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Our Geographical Focus</h2>
+                    <p class="text-md text-gray-500 mt-2 max-w-2xl mx-auto">Our solution is specifically tailored to the unique topographical and logistical challenges of Northeast India, an area where timely healthcare intervention can save lives.</p>
+                </div>
+                <div class="bg-[var(--card-bg)] rounded-2xl shadow-xl border border-[var(--card-border)] p-4">
+                    <div class="rounded-xl overflow-hidden">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3654423.515273952!2d91.8029598436446!3d26.11548244976732!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x374665bd985149f9%3A0x6b1f9c381c5a2426!2sNortheast%20India!5e0!3m2!1sen!2sin!4v1694625659228!5m2!1sen!2sin" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </section>
+
+            <section id="roadmap" class="mb-24 fade-in-section pt-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Strategic Implementation Roadmap</h2>
+                    <p class="text-md text-gray-500 mt-2 max-w-2xl mx-auto">Our vision is grounded in a phased, scalable plan to ensure sustainable impact and long-term adoption.</p>
+                </div>
+                <div class="grid md:grid-cols-4 gap-8 text-center">
+                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--card-border)]">
+                        <h3 class="font-bold text-xl text-[var(--primary-accent)] mb-2">Phase 1: The Pilot</h3>
+                        <p class="text-gray-600 font-medium">Launch MVP in 10 high-risk villages to validate models and gather feedback.</p>
+                        <p class="text-sm text-gray-400 mt-2">Timeline: 3 Months</p>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--card-border)]">
+                        <h3 class="font-bold text-xl text-[var(--primary-accent)] mb-2">Phase 2: The Scale-Up</h3>
+                        <p class="text-gray-600 font-medium">District-wide rollout with full integration of IoT water sensors and advanced analytics.</p>
+                        <p class="text-sm text-gray-400 mt-2">Timeline: 9 Months</p>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--card-border)]">
+                        <h3 class="font-bold text-xl text-[var(--primary-accent)] mb-2">Phase 3: The Partnership</h3>
+                        <p class="text-gray-600 font-medium">Partner with State Governments for wider, policy-level deployment and integration.</p>
+                        <p class="text-sm text-gray-400 mt-2">Timeline: 18 Months</p>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--card-border)]">
+                        <h3 class="font-bold text-xl text-[var(--primary-accent)] mb-2">Phase 4: The Vision</h3>
+                        <p class="text-gray-600 font-medium">Integrate with the National Health Stack to contribute to a healthier India.</p>
+                        <p class="text-sm text-gray-400 mt-2">Timeline: Ongoing</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="impact" class="mb-24 fade-in-section pt-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Transformative Impact & Stakeholders</h2>
+                    <p class="text-md text-gray-500 mt-2 max-w-3xl mx-auto">Beyond preventing illness, "Jal Suraksha" empowers communities, strengthens health systems, and fosters data-driven governance.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-[var(--card-bg)] p-6 rounded-2xl shadow-xl border border-[var(--card-border)]">
+                        <h3 class="text-xl font-semibold text-center text-gray-800 mb-4">Targeted Water-Borne Diseases</h3>
+                        <p class="text-center text-gray-500 mb-6">Our system focuses on detecting patterns for the most prevalent diseases in the region.</p>
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="diseaseDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-2xl shadow-xl border border-[var(--card-border)] flex flex-col justify-center">
+                        <h3 class="text-xl font-semibold text-center text-gray-800 mb-6">Key Collaborating Stakeholders</h3>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-700">🏢 Ministry of Development of North Eastern Region</h4>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-700">🏥 Ministry of Health & Family Welfare</h4>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-700">💧 Ministry of Jal Shakti</h4>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-700">🌍 State Health Departments & PHEDs</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="data-collection-note" id="data-collection-btn">
+             <span class="font-bold">Data collection form</span>
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p class="font-bold text-lg mb-2">Project Jal Suraksha by Team Titans</p>
+            <p>Problem Statement ID: SIH25001</p>
+            <p class="text-sm text-gray-400 mt-2">&copy; 2025. A solution for Smart India Hackathon.</p>
+        </div>
+    </footer>
+
+    <div id="chatbot-fab">
+        <button id="chatbot-toggle-btn" class="bg-[var(--primary-accent)] text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-[var(--primary-accent-dark)] transition-transform hover:scale-110">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div id="chat-window" class="bg-white rounded-lg shadow-2xl flex flex-col">
+        <div class="bg-[var(--secondary-accent)] text-white p-4 rounded-t-lg">
+            <h3 class="font-bold text-lg">AquaSure Assistant</h3>
+            <p class="text-sm text-gray-300">Frequently asked questions</p>
+        </div>
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto"></div>
+        <div id="chat-options" class="p-4 border-t border-gray-200"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dataStore = {
+                seasonalData: {
+                    monsoon: { labels: ['Diarrhea', 'Cholera', 'Typhoid', 'Hepatitis A'], data: [85, 60, 45, 30] },
+                    dry: { labels: ['Diarrhea', 'Cholera', 'Typhoid', 'Hepatitis A'], data: [20, 10, 8, 5] }
+                },
+                diseaseData: { labels: ['Diarrhea', 'Cholera', 'Typhoid', 'Hepatitis A'], data: [45, 25, 20, 10] },
+                diagramDetails: {
+                    "node-data-collection": { title: "1. Community Intelligence", text: `Data from <span class="asha-tooltip" title="Accredited Social Health Activist">ASHA workers</span>, clinics, and volunteers is collected via a multilingual, offline-first mobile app. This creates a real-time, ground-level health map.` },
+                    "node-water-monitoring": { title: "2. Environmental Data", text: "The system integrates with low-cost IoT sensors and manual test kits to continuously monitor water quality, adding a critical layer of environmental context to health data." },
+                    "node-ai-engine": { title: "3. AI Prediction Core", text: "Health, water, and climate data are fed into Python & TensorFlow models. The AI analyzes complex patterns to forecast potential outbreaks with high accuracy." },
+                    "node-alerts": { title: "4. Rapid Response Alerts", text: "When the AI flags a high-risk area, it triggers immediate SMS and push notifications to health officials, enabling a proactive, targeted response before an outbreak escalates." },
+                    "node-dashboard": { title: "5. Actionable Dashboards", text: "Officials can access a web-based dashboard to visualize hotspots, track intervention effectiveness, and allocate resources with data-driven precision." }
+                },
+                tabContent: {
+                    1: { title: "Community Mobile App", text: `Built with Flutter for cross-platform and offline functionality, the app features an icon-based UI for low digital literacy users and supports tribal languages to ensure inclusivity.` },
+                    2: { title: "AI-Based Outbreak Prediction", text: "Our core innovation. The AI engine uses machine learning to identify subtle patterns that precede an outbreak, shifting the public health paradigm from reactive to predictive." },
+                    3: { title: "Water Quality Sensors & Kits", text: "Integration with both manual test kits and automated low-cost IoT sensors allows for flexible and scalable monitoring of water sources, providing critical environmental context." },
+                    4: { title: "Awareness & Education Modules", text: "The platform includes targeted educational modules delivered via the app to promote hygiene awareness and disease prevention, empowering the community to be the first line of defense." }
+                }
+            };
+
+            // Charting, Diagram, and Tab logic (condensed for brevity)
+            let seasonalChart, diseaseChart;
+            function createSeasonalChart(season) { const ctx = document.getElementById('seasonalSpikeChart').getContext('2d'); if (seasonalChart) seasonalChart.destroy(); seasonalChart = new Chart(ctx, { type: 'bar', data: { labels: dataStore.seasonalData[season].labels, datasets: [{ label: 'Reported Cases', data: dataStore.seasonalData[season].data, backgroundColor: '#007BFF', borderColor: '#0056b3', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 1000, easing: 'easeOutCubic' }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => ` Cases: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Reported Cases' } } } } }); }
+            function createDiseaseChart() { const ctx = document.getElementById('diseaseDistributionChart').getContext('2d'); diseaseChart = new Chart(ctx, { type: 'doughnut', data: { labels: dataStore.diseaseData.labels, datasets: [{ label: 'Disease Distribution', data: dataStore.diseaseData.data, backgroundColor: ['#007BFF', '#5CACEE', '#87CEFA', '#B0E0E6'], hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, animation: { animateScale: true, animateRotate: true }, plugins: { legend: { position: 'bottom' } } } }); }
+            createSeasonalChart('monsoon'); createDiseaseChart();
+            document.getElementById('monsoonBtn').addEventListener('click', () => { createSeasonalChart('monsoon'); document.getElementById('monsoonBtn').className = 'bg-[var(--primary-accent)] text-white px-6 py-2 rounded-full shadow-md hover:scale-105 transition-transform'; document.getElementById('dryBtn').className = 'bg-gray-200 text-gray-700 px-6 py-2 rounded-full shadow-md hover:scale-105 transition-transform'; });
+            document.getElementById('dryBtn').addEventListener('click', () => { createSeasonalChart('dry'); document.getElementById('dryBtn').className = 'bg-[var(--primary-accent)] text-white px-6 py-2 rounded-full shadow-md hover:scale-105 transition-transform'; document.getElementById('monsoonBtn').className = 'bg-gray-200 text-gray-700 px-6 py-2 rounded-full shadow-md hover:scale-105 transition-transform'; });
+            const diagramNodes = document.querySelectorAll('.flow-node'); const detailsPanel = document.getElementById('diagram-details'); diagramNodes.forEach(node => { node.addEventListener('click', () => { diagramNodes.forEach(n => n.classList.remove('active-diagram-node')); node.classList.add('active-diagram-node'); const details = dataStore.diagramDetails[node.id]; if (details) { detailsPanel.classList.remove('active'); setTimeout(() => { document.getElementById('details-title').textContent = details.title; document.getElementById('details-text').innerHTML = details.text; detailsPanel.classList.add('active'); }, 250); } }); });
+            const tabs = document.querySelectorAll('.tab-btn'); const tabContentContainer = document.getElementById('tab-content'); function updateTabContent(tabId) { const content = dataStore.tabContent[tabId]; if (content) { tabContentContainer.classList.remove('active'); setTimeout(() => { tabContentContainer.innerHTML = `<div class="p-1"><h4 class="font-bold text-xl text-gray-800 mb-2">${content.title}</h4><p class="text-gray-600 leading-relaxed">${content.text}</p></div>`; tabContentContainer.classList.add('active'); }, 250); } }
+            tabs.forEach(tab => { tab.addEventListener('click', (e) => { tabs.forEach(t => { t.classList.remove('active-tab'); t.classList.add('text-gray-500', 'hover:text-gray-700'); }); e.target.classList.add('active-tab'); e.target.classList.remove('text-gray-500', 'hover:text-gray-700'); updateTabContent(e.target.dataset.tab); }); });
+            updateTabContent(1);
+
+            // Header scroll effect
+            const header = document.getElementById('main-header');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 50);
+            });
+
+            // Section fade-in effect
+            const sections = document.querySelectorAll('.fade-in-section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); });
+            }, { threshold: 0.1 });
+            sections.forEach(section => observer.observe(section));
+
+            // --- Data Collection Button Logic (User Added & Corrected) ---
+            const dataCollectionBtn = document.getElementById('data-collection-btn');
+            if (dataCollectionBtn) {
+                dataCollectionBtn.addEventListener("click", () => {
+                    window.open("html_2.html", "_blank");
+                });
+            }
+
+            // --- Chatbot Logic ---
+            const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
+            const chatWindow = document.getElementById('chat-window');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatOptions = document.getElementById('chat-options');
+            const chatData = {
+                'start': { message: "Hello! How can I help you learn about Project AquaSure?", options: { 'innovation': "What is the core innovation?", 'tech': "What tech stack is used?", 'offline': "Is the app offline-capable?" } },
+                'innovation': { message: "Our core innovation is flipping the model from reactive to predictive. We use AI to forecast outbreaks *before* they happen, enabling a proactive response.", options: { 'start': 'Back to main menu', 'tech': 'Learn about the tech stack' } },
+                'tech': { message: "We use a robust stack: Python & TensorFlow for AI, Flutter for the mobile app, and AWS for scalable cloud infrastructure.", options: { 'start': 'Back to main menu', 'innovation': 'Ask about innovation' } },
+                'offline': { message: "Absolutely. The mobile app is designed with an 'Offline-First' approach. Data is stored locally in remote areas and synced automatically when connectivity is restored.", options: { 'start': 'Back to main menu', 'tech': 'What is the tech stack?' } }
+            };
+            function addMessage(text, sender) { const messageEl = document.createElement('div'); messageEl.className = `chat-message p-3 rounded-lg mb-2 max-w-[85%] ${sender === 'bot' ? 'bg-gray-200 self-start' : 'bg-blue-500 text-white self-end'}`; messageEl.textContent = text; chatMessages.appendChild(messageEl); chatMessages.scrollTop = chatMessages.scrollHeight; }
+            function showOptions(options) { chatOptions.innerHTML = ''; for (const key in options) { const button = document.createElement('button'); button.className = 'w-full text-left p-2 bg-white border border-gray-300 rounded-md mb-2 hover:bg-gray-100 transition-colors'; button.textContent = options[key]; button.onclick = () => { addMessage(options[key], 'user'); handleInteraction(key); }; chatOptions.appendChild(button); } }
+            function handleInteraction(key) { const response = chatData[key]; setTimeout(() => { addMessage(response.message, 'bot'); showOptions(response.options); }, 500); }
+            chatbotToggleBtn.addEventListener('click', () => { chatWindow.classList.toggle('open'); if (chatWindow.classList.contains('open') && chatMessages.children.length === 0) { handleInteraction('start'); } });
+        });
+    </script>
+</body>
+
+</html>

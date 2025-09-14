@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Health Monitoring System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .alert-card {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="main-container" class="container mx-auto p-4 sm:p-6 bg-gray-100 rounded-2xl shadow-lg">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-tight">
+                Health Monitoring & Early Warning System
+            </h1>
+            <p class="text-sm sm:text-base text-gray-500 mt-2">
+                For Water-Borne Diseases in Rural Northeast India
+            </p>
+        </header>
+
+        <!-- User Info & Loading State -->
+        <div id="auth-status" class="text-center text-sm mb-4">
+            <p id="loading-message" class="text-gray-600">Initializing app...</p>
+            <p id="user-info" class="text-gray-600 hidden">User ID: <span id="user-id-display" class="font-mono bg-gray-200 px-2 py-1 rounded-full text-xs"></span></p>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid md:grid-cols-2 gap-6">
+
+            <!-- Report a Case Card -->
+            <div class="card p-6">
+                <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Report a New Case</h2>
+                <form id="report-form" class="space-y-4">
+                    <div>
+                        <label for="village-select" class="block text-gray-700 font-medium mb-1">Village</label>
+                        <select id="village-select" required class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Village</option>
+                            <option value="Guwahati">Guwahati (Assam)</option>
+                            <option value="Agartala">Agartala (Tripura)</option>
+                            <option value="Shillong">Shillong (Meghalaya)</option>
+                            <option value="Imphal">Imphal (Manipur)</option>
+                            <option value="Kohima">Kohima (Nagaland)</option>
+                            <option value="Aizawl">Aizawl (Mizoram)</option>
+                            <option value="Itanagar">Itanagar (Arunachal Pradesh)</option>
+                            <option value="Gangtok">Gangtok (Sikkim)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="disease-select" class="block text-gray-700 font-medium mb-1">Disease</label>
+                        <select id="disease-select" required class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Disease</option>
+                            <option value="Cholera">Cholera</option>
+                            <option value="Typhoid">Typhoid</option>
+                            <option value="Hepatitis A">Hepatitis A</option>
+                            <option value="Diarrhea">Diarrhea</option>
+                            <option value="Amoebiasis">Amoebiasis</option>
+                            <option value="Giardiasis">Giardiasis</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="notes" class="block text-gray-700 font-medium mb-1">Additional Notes (Optional)</label>
+                        <textarea id="notes" rows="3" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., source of water, number of people affected"></textarea>
+                    </div>
+                    <button type="submit" class="w-full btn-primary p-3 font-semibold text-lg">
+                        <i class="fas fa-paper-plane mr-2"></i> Submit Report
+                    </button>
+                    <div id="report-message" class="text-center mt-2 text-sm"></div>
+                </form>
+            </div>
+
+            <!-- Early Warning System & Dashboard Card -->
+            <div class="card p-6 flex flex-col">
+                <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Dashboard & Alerts</h2>
+
+                <!-- Early Warning Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-red-600 mb-2 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Early Warnings
+                    </h3>
+                    <div id="warnings-list" class="space-y-3">
+                        <!-- Alerts will be injected here dynamically -->
+                        <div id="no-warnings-message" class="text-gray-500 text-sm italic">No active warnings.</div>
+                    </div>
+                </div>
+
+                <!-- Recent Reports Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                        <i class="fas fa-list-ul mr-2"></i> Recent Reports
+                    </h3>
+                    <div id="recent-reports-list" class="space-y-4 max-h-64 overflow-y-auto">
+                        <!-- Reports will be injected here dynamically -->
+                        <div id="no-reports-message" class="text-gray-500 text-sm italic">No recent reports.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        setLogLevel('debug');
+
+        // Global variables for Firebase configuration
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof _firebase_config !== 'undefined' ? JSON.parse(_firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // UI elements
+        const loadingMessage = document.getElementById('loading-message');
+        const userInfo = document.getElementById('user-info');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const reportForm = document.getElementById('report-form');
+        const reportMessage = document.getElementById('report-message');
+        const reportsList = document.getElementById('recent-reports-list');
+        const warningsList = document.getElementById('warnings-list');
+        const noReportsMessage = document.getElementById('no-reports-message');
+        const noWarningsMessage = document.getElementById('no-warnings-message');
+
+        // Firebase instances
+        let app;
+        let db;
+        let auth;
+        let userId;
+
+        /**
+         * Initializes Firebase and authenticates the user.
+         */
+        async function initializeFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is missing. Please check the environment variables.");
+                    loadingMessage.textContent = "Error: Firebase configuration is missing. Cannot initialize app.";
+                    return;
+                }
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Use the provided custom token for authentication, or sign in anonymously if not available
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for auth state changes to get the user ID
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Authenticated with user ID:", userId);
+                        userIdDisplay.textContent = userId;
+                        loadingMessage.classList.add('hidden');
+                        userInfo.classList.remove('hidden');
+                        // Start listening to Firestore after successful authentication
+                        setupFirestoreListeners();
+                    } else {
+                        // User is signed out
+                        console.log("User signed out.");
+                        loadingMessage.textContent = "Please wait, signing in...";
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                reportMessage.textContent = Error: ${error.message};
+            }
+        }
+
+        /**
+         * Sets up real-time listeners for Firestore data.
+         */
+        function setupFirestoreListeners() {
+            if (!db || !userId) return;
+
+            const publicReportsCollectionPath = artifacts/${appId}/public/data/health_reports;
+            const q = query(collection(db, publicReportsCollectionPath));
+
+            onSnapshot(q, (snapshot) => {
+                const reports = [];
+                snapshot.forEach(doc => {
+                    reports.push({ id: doc.id, ...doc.data() });
+                });
+                renderReports(reports);
+                checkAndRenderWarnings(reports);
+            }, (error) => {
+                console.error("Error fetching reports:", error);
+                reportsList.innerHTML = <div class="text-red-500">Error loading reports.</div>;
+            });
+        }
+
+        /**
+         * Renders the list of recent reports.
+         * @param {Array<Object>} reports - An array of report objects.
+         */
+        function renderReports(reports) {
+            reports.sort((a, b) => b.timestamp - a.timestamp); // Sort by newest first
+            
+            reportsList.innerHTML = '';
+            if (reports.length === 0) {
+                noReportsMessage.classList.remove('hidden');
+            } else {
+                noReportsMessage.classList.add('hidden');
+                reports.slice(0, 10).forEach(report => { // Show up to 10 recent reports
+                    const reportDate = report.timestamp ? new Date(report.timestamp.toDate()).toLocaleString() : 'N/A';
+                    const reportElement = document.createElement('div');
+                    reportElement.className = "p-3 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors";
+                    reportElement.innerHTML = `
+                        <p class="font-medium text-gray-800">${report.village} - ${report.disease}</p>
+                        <p class="text-sm text-gray-600 mt-1">${report.notes || 'No notes'}</p>
+                        <p class="text-xs text-gray-400 mt-1">Reported by ${report.userId.substring(0, 8)}... on ${reportDate}</p>
+                    `;
+                    reportsList.appendChild(reportElement);
+                });
+            }
+        }
+
+        /**
+         * Checks the reports and generates early warnings if thresholds are met.
+         * @param {Array<Object>} reports - An array of report objects.
+         */
+        function checkAndRenderWarnings(reports) {
+            warningsList.innerHTML = '';
+            noWarningsMessage.classList.add('hidden');
+
+            const now = new Date();
+            const oneDayAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+
+            // Count recent cases by village and disease
+            const recentCaseCounts = reports.reduce((acc, report) => {
+                if (report.timestamp.toDate() > oneDayAgo) {
+                    const key = ${report.village}-${report.disease};
+                    acc[key] = (acc[key] || 0) + 1;
+                }
+                return acc;
+            }, {});
+
+            let warningsFound = false;
+            for (const key in recentCaseCounts) {
+                const [village, disease] = key.split('-');
+                const count = recentCaseCounts[key];
+
+                // Simple threshold for a warning
+                const warningThreshold = 3; 
+
+                if (count >= warningThreshold) {
+                    warningsFound = true;
+                    const warningElement = document.createElement('div');
+                    warningElement.className = "alert-card p-3 shadow-md";
+                    warningElement.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-700 mr-2"></i>
+                            <p class="font-semibold text-red-800">Warning: Possible outbreak in ${village}!</p>
+                        </div>
+                        <p class="text-sm mt-1">There have been ${count} cases of ${disease} reported in the last 24 hours.</p>
+                    `;
+                    warningsList.appendChild(warningElement);
+                }
+            }
+
+            if (!warningsFound) {
+                noWarningsMessage.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Handles the form submission for reporting a new case.
+         * @param {Event} event - The form submission event.
+         */
+        async function handleReportSubmit(event) {
+            event.preventDefault();
+
+            if (!db || !userId) {
+                reportMessage.className = "text-red-500 mt-2";
+                reportMessage.textContent = "Application is still initializing. Please wait.";
+                return;
+            }
+
+            const village = document.getElementById('village-select').value;
+            const disease = document.getElementById('disease-select').value;
+            const notes = document.getElementById('notes').value;
+            
+            if (!village || !disease) {
+                reportMessage.className = "text-red-500 mt-2";
+                reportMessage.textContent = "Please select both a village and a disease.";
+                return;
+            }
+
+            const reportData = {
+                userId: userId,
+                village: village,
+                disease: disease,
+                notes: notes,
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                const publicReportsCollectionPath = artifacts/${appId}/public/data/health_reports;
+                await addDoc(collection(db, publicReportsCollectionPath), reportData);
+
+                reportMessage.className = "text-green-600 mt-2";
+                reportMessage.textContent = "Report submitted successfully! Thank you.";
+                reportForm.reset();
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                reportMessage.className = "text-red-500 mt-2";
+                reportMessage.textContent = Error submitting report: ${error.message};
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebase();
+            reportForm.addEventListener('submit', handleReportSubmit);
+        });
+
+    </script>
+
+</body>
+</html>
