@@ -110,6 +110,15 @@
         #main-header.scrolled .text-\[var\(--primary-accent)\] {
             color: var(--primary-accent);
         }
+        #login-link {
+            font-weight: 600;
+            background-color: hsla(348, 54%, 38%, 0.856);
+            align-items: right;
+            border-radius: 8px;
+            padding:2px  14px;
+            color: white !important;
+            transition: background-color 0.3s ease;
+        }
 
         /* --- General Styles --- */
         .active-tab {
@@ -199,6 +208,7 @@
                 <a href="#focus-area" class="hover:text-[var(--primary-accent)] transition-colors">Focus Area</a>
                 <a href="#roadmap" class="hover:text-[var(--primary-accent)] transition-colors">Roadmap</a>
                 <a href="#impact" class="hover:text-[var(--primary-accent)] transition-colors">Impact</a>
+                <a href="login_page.html" id="login-link" class="hover:text-[var(--primary-accent)] transition-colors">Login</a>
             </div>
         </nav>
     </header>
