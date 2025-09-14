@@ -1,0 +1,320 @@
+        :root {
+            --bg-color: #F8F9FA;
+            --text-color: #343A40;
+            --primary-accent: #007BFF;
+            --primary-accent-dark: #0056b3;
+            --secondary-accent: #3A506B;
+            --card-border: #EAEAEA;
+            --card-bg: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* --- Hero Section Styles --- */
+        #hero-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #hero-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            animation: hero-zoom-in 1.5s ease-out forwards;
+        }
+
+        #hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+            animation: fade-in-up 1s ease-out 0.5s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes hero-zoom-in {
+            from {
+                transform: scale(1.1);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fade-in-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Header Styles --- */
+        #main-header {
+            background-color: transparent;
+            transition: background-color 0.4s ease-in-out, backdrop-filter 0.4s ease-in-out;
+        }
+
+        #main-header.scrolled {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        #main-header.scrolled a,
+        #main-header.scrolled div {
+            color: #343A40;
+        }
+
+        #main-header a,
+        #main-header div {
+            color: white;
+        }
+
+        #main-header .text-\[var\(--primary-accent)\] {
+            color: var(--primary-accent);
+        }
+
+        #main-header.scrolled .text-\[var\(--primary-accent)\] {
+            color: var(--primary-accent);
+        }
+
+        #login-link {
+            font-weight: 600;
+            background-color: hsla(348, 54%, 38%, 0.856);
+            align-items: right;
+            border-radius: 8px;
+            padding: 2px 14px;
+            color: white !important;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- General Styles --- */
+        .active-tab {
+            border-bottom-color: var(--primary-accent);
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+
+        .flow-node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flow-node:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-accent) !important;
+        }
+
+        .flow-node.active-diagram-node {
+            background-color: var(--primary-accent) !important;
+            color: #FFFFFF !important;
+            border-color: var(--primary-accent) !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 14px 0 rgba(0, 123, 255, 0.4);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            height: 300px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .content-fade {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .content-fade.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.645, 0.045, 0.355, 1), transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .asha-tooltip {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: help;
+            position: relative;
+        }
+
+        .diagram-container {
+            position: relative;
+        }
+
+        .arrow {
+            position: absolute;
+            background-color: #d1d5db;
+            z-index: 0;
+            opacity: 0;
+            animation: draw-arrow 0.8s forwards;
+        }
+
+        @keyframes draw-arrow {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .arrow.down {
+            width: 3px;
+            height: 50px;
+        }
+
+        .arrow.down::after {
+            content: '';
+            position: absolute;
+            left: -7px;
+            bottom: -2px;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #d1d5db;
+        }
+
+        #arrow1 {
+            left: 25%;
+            top: 27%;
+            animation-delay: 0.5s;
+        }
+
+        #arrow2 {
+            left: 75%;
+            top: 27%;
+            transform: translateX(-100%);
+            animation-delay: 0.5s;
+        }
+
+        #arrow3 {
+            left: 50%;
+            top: 62%;
+            height: 40px;
+            transform: translateX(-50%);
+            animation-delay: 1s;
+        }
+
+        #arrow-connector {
+            position: absolute;
+            top: 75%;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background-color: #d1d5db;
+            animation: draw-arrow 1s forwards;
+            animation-delay: 1.5s;
+        }
+
+        #arrow4 {
+            top: 75%;
+            left: 25%;
+            animation-delay: 2s;
+        }
+
+        #arrow5 {
+            top: 75%;
+            left: 75%;
+            transform: translateX(-100%);
+            animation-delay: 2s;
+        }
+
+        /* --- Data Collection Note Styles (User Added) --- */
+        .data-collection-note {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background-color: #08b6dde0;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-family: 'Inter', sans-serif;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .data-collection-note:hover {
+            transform: scale(1.05);
+        }
+
+        /* --- Chatbot Styles --- */
+        #chatbot-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        #chat-window {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 350px;
+            height: 450px;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+            transform: scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #chat-window.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .chat-message {
+            animation: pop-in 0.3s ease;
+        }
+
+        @keyframes pop-in {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
