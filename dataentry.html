@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Health Monitoring & Early Warning System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex: 1;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: block;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .alert {
+      color: red;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #f9f9f9;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 6px;
+    }
+    .meta {
+      font-size: 0.9em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Health Monitoring & Early Warning System</h1>
+  <div class="container">
+    <!-- Report Form -->
+    <div class="card">
+      <h2>Report a New Case</h2>
+      <form id="reportForm">
+        <label for="village">Village</label>
+        <select id="village" required>
+          <option value="">Select Village</option>
+          <option>Guwahati (Assam)</option>
+          <option>Agartala (Tripura)</option>
+          <option>Shillong (Meghalaya)</option>
+          <option>Imphal (Manipur)</option>
+          <option>Kohima (Nagaland)</option>
+          <option>Aizawl (Mizoram)</option>
+            <option>Itanagar (Arunachal Pradesh)</option>
+            <option>Gangtok (Sikkim)</option>
+
+        </select>
+
+        <label for="disease">Disease</label>
+        <select id="disease" required>
+          <option value="">Select Disease</option>
+          <option>Cholera</option>
+          <option>Typhoid</option>
+          <option>Dysentery</option>
+          <option>Hepatitis A</option>
+          <option>Giardiasis</option>
+        </select>
+
+        <label for="notes">Additional Notes (Optional)</label>
+        <textarea id="notes" placeholder="e.g., number of cases, water source"></textarea>
+
+        <button type="submit">Submit Report</button>
+      </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="card">
+      <h2>Dashboard & Alerts</h2>
+      <div class="alert" id="warning">⚠ No active warnings</div>
+      <h3>Recent Reports</h3>
+      <ul id="reportList">No recent reports.</ul>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('reportForm');
+    const reportList = document.getElementById('reportList');
+    const warning = document.getElementById('warning');
+
+    // Load stored data
+    let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+    renderReports();
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const village = document.getElementById('village').value;
+      const disease = document.getElementById('disease').value;
+      const notes = document.getElementById('notes').value;
+
+      if (!village || !disease) {
+        alert("Please select both village and disease!");
+        return;
+      }
+
+      const newReport = {
+        village,
+        disease,
+        notes,
+        time: new Date().toLocaleString()
+      };
+
+      reports.unshift(newReport); // add to beginning
+      localStorage.setItem('reports', JSON.stringify(reports));
+
+      form.reset();
+      renderReports();
+    });
+
+    function renderReports() {
+      if (reports.length === 0) {
+        reportList.innerHTML = "<li>No recent reports.</li>";
+        warning.textContent = "⚠ No active warnings";
+        return;
+      }
+
+      reportList.innerHTML = "";
+      reports.slice(0, 5).forEach(r => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${r.disease}</strong> reported in <em>${r.village}</em>
+          <div class="meta">${r.time} | Notes: ${r.notes || "None"}</div>`;
+        reportList.appendChild(li);
+      });
+
+      // Example: show warning if severe diseases are reported
+      const severe = reports.find(r => r.disease === "Cholera" || r.disease === "Typhoid");
+      if (severe) {
+        warning.textContent = "⚠ Early Warning: " + severe.disease + " detected!";
+      } else {
+        warning.textContent = "⚠ No active warnings";
+      }
+    }
+  </script>
+</body>
+</html>
