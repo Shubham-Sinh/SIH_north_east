@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const dataCollectionBtn = document.getElementById('data-collection-btn');
             if (dataCollectionBtn) {
                 dataCollectionBtn.addEventListener("click", () => {
-                    window.open("html_2.html", "_blank");
+                    window.open("dataentry.html", "_blank");
                 });
             }
             
